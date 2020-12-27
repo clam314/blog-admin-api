@@ -17,8 +17,6 @@ import log4js from '@/config/Log4j'
 import monitorLogger from '@/common/Logger'
 import AuthCheck, { unless } from '@/common/AuthCheck'
 
-import '@/common/Cron'
-
 const app = new Koa()
 const ws = new WebSocketServer()
 
@@ -30,7 +28,7 @@ global.console.log2 = (msg, index = 1) => { // 用于控制台打印
 }
 
 // 定义公共路径，不需要jwt鉴权
-unless(['/public', '/login'])
+unless(config.publicPath)
 
 /**
  * 使用koa-compose 集成中间件
@@ -52,7 +50,7 @@ const middleware = compose([
   jsonutil({ pretty: false, param: 'pretty' }),
   helmet(),
   AuthCheck,
-  auth,
+  // auth,
   errorHandle,
   config.isDevMode
     ? log4js.koaLogger(log4js.getLogger('http'), {

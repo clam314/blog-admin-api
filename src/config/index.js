@@ -8,8 +8,6 @@ const DB_NAME = process.env.DB_NAME || 'testdb'
 
 const DB_URL = `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_HOSTNAME}:${MONGO_PORT}/${DB_NAME}`
 
-// console.log('DB_URL', DB_URL)
-
 const REDIS = {
   host: process.env.REDIS_HOST || 'dev.toimc.com',
   port: process.env.REDIS_PORT || 43131,
@@ -20,6 +18,12 @@ const APP_KEY = '123456' // TODO先写死，后面从数据库查询
 
 const baseUrlPrefix = '/api'
 
+const getUrlPrefixStr = (str) => {
+  return baseUrlPrefix + str
+}
+
+const SALT = '2Z!cETtfy_h720@p$!hebwk&*sPyk7Mp'
+
 const JWT_SECRET = '&Vi%33pG2mD51xMo%OUOTo$ZWOa3TYt328tcjXtW9&hn%AOb9quwaZaRMf#f&44c'
 
 const baseUrl = process.env.NODE_ENV === 'production' ? 'http://front.dev.toimc.com:22500' : 'http://localhost:8080'
@@ -28,7 +32,7 @@ const uploadPath = process.env.NODE_ENV === 'production' ? '/app/public' : path.
 
 const adminEmail = ['1322928787@qq.com']
 
-const publicPath = [/^\/public/, /^\/login/, /^\/content/, /^\/user/, /^\/comments/]
+const publicPath = ['/public', '/login']
 
 const isDevMode = process.env.NODE_ENV !== 'production'
 
@@ -53,6 +57,7 @@ export default {
   REDIS,
   JWT_SECRET,
   baseUrlPrefix,
+  getUrlPrefixStr,
   baseUrl,
   uploadPath,
   adminEmail,

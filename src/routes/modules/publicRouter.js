@@ -8,12 +8,6 @@ const router = new Router()
 
 router.prefix('/public')
 
-// 获取图片验证码
-router.get('/getCaptcha', publicController.getCaptcha)
-
-// 发送短信验证码
-router.get('/sendcode', publicController.sendPhoneCode)
-
 // 获取文章列表
 router.get('/list', contentController.getPostList)
 
@@ -25,9 +19,6 @@ router.get('/links', contentController.getLinks)
 
 // 回复周榜
 router.get('/topWeek', contentController.getTopWeek)
-
-// 确认修改邮件
-router.get('/resetEmail', userController.updateUsername)
 
 // 获取文章详情
 router.get('/content/detail', contentController.getPostDetail)
@@ -59,7 +50,5 @@ router.get('/hotComments', publicController.getHotComments)
 // 获取用签到排行
 router.get('/hotSignRecord', publicController.getHotSignRecord)
 
-// wx获取模板消息id
-router.get('/getSubIds', publicController.getSubIds)
 
 export default router

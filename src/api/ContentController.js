@@ -1,7 +1,5 @@
 import Post from '../model/Post'
 import Links from '../model/Links'
-// method1
-// import { dirExists } from '@/common/Utils'
 import { checkCode, getJWTPayload } from '@/common/Utils'
 import { hwUpload } from '@/common/HwUtils'
 import User from '@/model/User'
@@ -10,8 +8,6 @@ import UserCollect from '../model/UserCollect'
 import qs from 'qs'
 import PostHistory from '../model/PostHistory'
 import moment from 'dayjs'
-import { v4 as uuidv4 } from 'uuid'
-import { wxMsgCheck, wxImgCheck } from '@/common/WxUtils'
 
 class ContentController {
   // 获取文章列表
@@ -79,71 +75,48 @@ class ContentController {
     }
   }
 
-  // 上传图片
-  async uploadImg (ctx) {
-    const file = ctx.request.files.file
-    const result = await wxImgCheck(file)
-    if (result.errcode === 0) {
-      const uuid = uuidv4()
-      // 图片名称、图片格式、存储的位置，返回前台一可以读取的路径
-      const user = await User.findByID(ctx._id)
-      const fileName = `${user.username}/${moment().format(
-        'YYYY-MM-DD'
-      )}/${uuid}-${file.name}`
-      try {
-        const result = await hwUpload(fileName, file.path)
-        ctx.body = {
-          code: 200,
-          msg: '图片上传成功',
-          data: result
-        }
-      } catch (error) {
-        ctx.body = {
-          code: 500,
-          msg: '图片上传失败' + error.message
-        }
-      }
-
-      // 本地上传
-
-      // const ext = file.name.split('.').pop()
-      // const dir = `${config.uploadPath}/${moment().format('YYYYMMDD')}`
-      // // 判断路径是否存在，不存在则创建
-      // await mkdir(dir)
-      // // 存储文件到指定的路径
-      // // 给文件一个唯一的名称
-      // const picname = uuid()
-      // const destPath = `${dir}/${picname}.${ext}`
-      // const reader = fs.createReadStream(file.path)
-      // const upStream = fs.createWriteStream(destPath)
-      // const filePath = `/${moment().format('YYYYMMDD')}/${picname}.${ext}`
-      // // method 1
-      // reader.pipe(upStream)
-
-      // const stat = fs.statSync(file.path)
-      // method 2
-      // let totalLength = 0
-      // reader.on('data', (chunk) => {
-      //   totalLength += chunk.length
-      //   if (upStream.write(chunk) === false) {
-      //     reader.pause()
-      //   }
-      // })
-
-      // upStream.on('drain', () => {
-      //   reader.resume()
-      // })
-
-      // reader.on('end', () => {
-      //   upStream.end()
-      // })
-    } else {
-      ctx.body = {
-        code: 200,
-        msg: result.errmsg
-      }
-    }
-  }
+  // // 上传图片
+  // async uploadImg (ctx) {
+  //   const file = ctx.request.files.file
+  //     //本地上传
+  //
+  //     const ext = file.name.split('.').pop()
+  //     const dir = `${config.uploadPath}/${moment().format('YYYYMMDD')}`
+  //     // 判断路径是否存在，不存在则创建
+  //     await mkdir(dir)
+  //     // 存储文件到指定的路径
+  //     // 给文件一个唯一的名称
+  //     const picname = uuid()
+  //     const destPath = `${dir}/${picname}.${ext}`
+  //     const reader = fs.createReadStream(file.path)
+  //     const upStream = fs.createWriteStream(destPath)
+  //     const filePath = `/${moment().format('YYYYMMDD')}/${picname}.${ext}`
+  //     // method 1
+  //     reader.pipe(upStream)
+  //
+  //     const stat = fs.statSync(file.path)
+  //     let totalLength = 0
+  //     reader.on('data', (chunk) => {
+  //       totalLength += chunk.length
+  //       if (upStream.write(chunk) === false) {
+  //         reader.pause()
+  //       }
+  //     })
+  //
+  //     upStream.on('drain', () => {
+  //       reader.resume()
+  //     })
+  //
+  //     reader.on('end', () => {
+  //       upStream.end()
+  //     })
+  //   } else {
+  //     ctx.body = {
+  //       code: 200,
+  //       msg: result.errmsg
+  //     }
+  //   }
+  // }
 
   // 添加新贴
   async addPost (ctx) {
@@ -179,43 +152,6 @@ class ContentController {
       ctx.body = {
         code: 500,
         msg: '图片验证码验证失败'
-      }
-    }
-  }
-
-  // 微信发贴
-  async addWxPost (ctx) {
-    const { body } = ctx.request
-    const content = body.content
-    // 验证图片验证码的时效性、正确性
-    const result = await wxMsgCheck(content)
-    if (result.errcode === 0 && ctx._id) {
-      const id = ctx._id
-      // const obj = await getJWTPayload(ctx.header.authorization)
-      // 判断用户的积分数是否 > fav，否则，提示用户积分不足发贴
-      // 用户积分足够的时候，新建Post，减除用户对应的积分
-      const user = await User.findByID({ _id: id })
-      if (user.favs < body.fav) {
-        ctx.body = {
-          code: 501,
-          msg: '积分不足'
-        }
-        return
-      } else {
-        await User.updateOne({ _id: id }, { $inc: { favs: -body.fav } })
-      }
-      const newPost = new Post(body)
-      newPost.uid = id
-      const result = await newPost.save()
-      ctx.body = {
-        code: 200,
-        msg: '成功的保存的文章',
-        data: result
-      }
-    } else {
-      ctx.body = {
-        code: 500,
-        msg: '内容安全：' + result.errmsg
       }
     }
   }
@@ -617,40 +553,6 @@ class ContentController {
     ctx.body = {
       code: 200,
       result
-    }
-  }
-
-  // 小程序新增文章
-  async wxAddPost (ctx) {
-    const { body } = ctx.request
-    try {
-      const obj = await getJWTPayload(ctx.header.authorization)
-      let post = {}
-      const _user = await User.findOne({ _id: obj._id })
-      if (_user.favs < body.fav) {
-        ctx.body = {
-          code: 200,
-          msg: '您的积分不足！'
-        }
-        return
-      } else {
-        // 扣除相应的积分
-        await User.updateOne({ _id: obj._id }, { favs: (_user.favs - body.fav) })
-      }
-      const newPost = new Post(body)
-      newPost.uid = obj._id
-      post = await newPost.save()
-      ctx.body = {
-        msg: '',
-        code: 200,
-        data: post
-      }
-    } catch (e) {
-      console.log(e)
-      ctx.body = {
-        msg: '添加文章详情失败',
-        code: 500
-      }
     }
   }
 }

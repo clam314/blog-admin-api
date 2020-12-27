@@ -4,7 +4,6 @@ import User from '../model/User'
 import { checkCode } from '@/common/Utils'
 import { getJWTPayload } from '../common/Utils'
 import CommentsHands from '../model/CommentsHands'
-import { wxSendMessage } from '@/common/WxUtils'
 
 const canReply = async (ctx) => {
   let result = false
@@ -119,51 +118,6 @@ class CommentsController {
         code: 500,
         msg: '评论失败'
       }
-    }
-  }
-
-  // 微信-添加评论
-  async wxAddComment (ctx) {
-    const { body } = ctx.request
-    const obj = await getJWTPayload(ctx.header.authorization)
-    const user = await User.findByID(obj._id)
-    const newComment = new Comments(body)
-    newComment.cuid = obj._id
-    // 添加文章评论记数
-    await Post.updateOne({ _id: body.tid }, { $inc: { answer: 1 } })
-    const post = await Post.findByPostId(body.tid)
-    newComment.uid = post.uid._id // 保存帖子作者的id
-    const comment = await newComment.save()
-
-    // 调用微信订阅消息api
-    // 1、发帖的作者必须是用微信登录的才可以接收订阅消息
-    // 2、自己不能给自己发订阅消息
-    if ((obj._id !== post.uid._id.toString()) && post.uid.openid) {
-      await wxSendMessage(body, post, user)
-    }
-
-    ctx.body = {
-      msg: '回帖成功',
-      code: 200,
-      data: comment
-    }
-  }
-
-  async updateComment (ctx) {
-    const check = await canReply(ctx)
-    if (!check) {
-      ctx.body = {
-        code: 500,
-        msg: '用户已被禁言！'
-      }
-      return
-    }
-    const { body } = ctx.request
-    const result = await Comments.updateOne({ _id: body.cid }, { $set: body })
-    ctx.body = {
-      code: 200,
-      msg: '修改成功',
-      data: result
     }
   }
 
