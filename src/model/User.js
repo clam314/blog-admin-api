@@ -4,7 +4,7 @@ import { getTempName } from '@/common/Utils'
 const Schema = mongoose.Schema
 
 const UserSchema = new Schema({
-  id: { type: String },
+  _id: { type: Schema.Types.ObjectId },
   name: { type: String },
   username: { type: String, index: { unique: true }, sparse: true },
   password: { type: String },
@@ -15,23 +15,26 @@ const UserSchema = new Schema({
   lastLoginTime: { type: String, default: '' },
   creatorId: { type: String, default: '' },
   createTime: { type: String, default: '' },
+  updateTime: { type: String, default: '' },
   deleted: { type: Number, default: 0 },
-  roleId: { type: String, default: ['user'] }
-}, { timestamps: { createdAt: 'created', updatedAt: 'updated' } })
+  roleId: { type: String, default: 'user' },
+  lang: { type: String, default: 'zh-CN' },
+  role: { type: Schema.Types.ObjectId, ref: 'roles' }
+})
 
 UserSchema.pre('save', function (next) {
-  this.created = new Date()
+  this.createTime = new Date()
   next()
 })
 
 UserSchema.pre('update', function (next) {
-  this.updated = new Date()
+  this.updateTime = new Date()
   next()
 })
 
 UserSchema.post('save', function (error, doc, next) {
   if (error.name === 'MongoError' && error.code === 11000) {
-    next(new Error('Error: Monngoose has a duplicate key.'))
+    next(new Error('Error: Mongoose has a duplicate key.'))
   } else {
     next(error)
   }
