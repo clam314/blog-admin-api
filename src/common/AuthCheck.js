@@ -4,6 +4,7 @@
  */
 import { checkToken, checkSign } from '@/common/Utils'
 import config from '@/config/index'
+import { builder, getRequestId } from '@/common/HttpHelper'
 
 let pathsRegEpx = null
 
@@ -23,20 +24,19 @@ export default async (ctx, next) => {
     }
   }
 
-  const token = ctx.header.token
-  if (!token || !checkSign(ctx.header)) {
-    ctx.body = {
-      code: 406,
-      msg: '没有权限！'
-    }
+  console.log('check head', ctx.header)
+
+  let checkUserToken = await checkToken(ctx.header.token)
+  if (!checkUserToken) {
+    ctx.body = builder({}, getRequestId(ctx), 'token过期,请重新登录！', '401')
     return
   }
-  if (!checkToken(token)) {
-    ctx.body = {
-      code: 401,
-      msg: 'token过期，请重新登录！'
-    }
-    return
-  }
+  // if (!token || !checkSign(ctx.header)) {
+  //   ctx.body = {
+  //     code: 406,
+  //     msg: '没有权限！'
+  //   }
+  //   return
+  // }
   await next()
 }

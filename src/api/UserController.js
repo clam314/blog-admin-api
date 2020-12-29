@@ -1,6 +1,6 @@
 import SignRecord from '../model/SignRecord'
 import { getJWTPayload, checkRedisAccountCode } from '../common/Utils'
-import User from '../model/User'
+import User from '@/model/User'
 import UserCollect from '../model/UserCollect'
 import moment from 'dayjs'
 import send from '@/config/MailConfig'
@@ -12,7 +12,22 @@ import bcrypt from 'bcryptjs'
 import Comments from '@/model/Comments'
 import qs from 'qs'
 import CommentsHands from '@/model/CommentsHands'
+import { builder, getRequestId } from '@/common/HttpHelper'
+
 class UserController {
+  // 用户信息
+  async userInfo (ctx) {
+    // 取用户的ID
+    console.log('user info:', ctx.header)
+    const obj = await getJWTPayload(ctx.header.token)
+    const user = await User.findRoleById(obj._id)
+    if (!user) {
+      ctx.body = builder({}, getRequestId(ctx), '用户不存在', '404')
+    } else {
+      ctx.body = builder(user, getRequestId(ctx))
+    }
+  }
+
   // 用户签到接口
   async userSign (ctx) {
     // 取用户的ID

@@ -37,9 +37,7 @@ export default async (ctx, next) => {
   } catch (err) {
     // 1. throw Error 2. ctx.throw()
     console.log('error', err)
-    logger.error(`${ctx.url} ${ctx.method} ${ctx.status}
-    ${err.stack}
-    `)
+    logger.error(`${ctx.url} ${ctx.method} ${ctx.status} ${err.stack}`)
     let user = ''
     if (ctx._id) {
       user = await User.findOne({ _id: ctx._id })

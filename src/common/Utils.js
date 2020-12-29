@@ -6,22 +6,27 @@ import path from 'path'
 import moment from 'dayjs'
 import md5 from 'js-md5'
 
-const getJWTPayload = token => {
+const getJWTPayload = async token => {
   try {
-    return jwt.verify(token.split(' ')[1], config.JWT_SECRET)
+    return await jwt.verify(token, config.JWT_SECRET)
   } catch (error) {
     throw new Error(error)
   }
 }
 
-const checkToken = (token) => {
-  const payload = jwt.verify(token, config.JWT_SECRET)
-  let { time, timeout } = payload
-  let data = new Date().getTime()
-  return data - time <= timeout
+const checkToken = async (token) => {
+  try {
+    const payload = await jwt.verify(token, config.JWT_SECRET)
+    let { exp: timeout } = payload
+    let data = new Date().getTime() / 1000
+    return data <= timeout
+  } catch (error) {
+    console.log('令牌过期')
+    return false
+  }
 }
 
-const checkSign = ({ head }) => {
+const checkSign = async ({ head }) => {
   if (!head || !head.sign) {
     return false
   } else {
