@@ -16,5 +16,5 @@ export const builder = (result, requestId = '', message = 'OK', code = 200) => {
 }
 
 export const getRequestId = (ctx) => {
-  return ctx.header.requestId ? ctx.header.requestId : ''
+  return ctx.header.requestid ? ctx.header.requestid : ''
 }

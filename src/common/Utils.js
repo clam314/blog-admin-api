@@ -5,6 +5,7 @@ import fs from 'fs'
 import path from 'path'
 import moment from 'dayjs'
 import md5 from 'js-md5'
+import Apps from '@/model/App'
 
 const getJWTPayload = async token => {
   try {
@@ -21,21 +22,22 @@ const checkToken = async (token) => {
     let data = new Date().getTime() / 1000
     return data <= timeout
   } catch (error) {
-    console.log('令牌过期')
     return false
   }
 }
 
-const checkSign = async ({ head }) => {
-  if (!head || !head.sign) {
+const checkSign = async (header) => {
+  if (!header || !header.sign) {
     return false
   } else {
     const checkHead = {
-      token: head.token,
-      requestId: head.requestid,
-      uuid: head.uuid
+      appKey: header.appkey,
+      token: header.token,
+      requestId: header.requestid,
+      uuid: header.uuid
     }
-    let md5string = null
+    let appSecret = await Apps.findOne({ appKey: header.appKey })
+    let md5string = ''
     Object.keys(checkHead).forEach((key) => {
       if (checkHead[key] != null && typeof checkHead[key] === 'object') {
         md5string = md5string + JSON.stringify(checkHead[key])
@@ -43,7 +45,7 @@ const checkSign = async ({ head }) => {
         md5string = md5string + checkHead[key]
       }
     })
-    return head.sign === md5(md5string + 'abc')
+    return header.sign === md5(md5string + appSecret)
   }
 }
 

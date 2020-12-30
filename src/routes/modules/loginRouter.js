@@ -6,6 +6,9 @@ const router = new Router()
 
 router.prefix(config.getUrlPrefixStr('/login/'))
 
+// 获取初始化数据
+router.post('/initial', loginController.initial)
+
 // 登录接口
 router.post('/login', loginController.login)
 

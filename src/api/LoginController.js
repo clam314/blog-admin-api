@@ -1,10 +1,25 @@
 import bcrypt from 'bcryptjs'
 import { checkCode, generateToken } from '@/common/Utils'
+import Apps from '@/model/App'
 import User from '@/model/User'
 import { getValue } from '@/config/RedisConfig'
-import { builder } from '@/common/HttpHelper'
+import { builder, getRequestId } from '@/common/HttpHelper'
 
 class LoginController {
+  // 初始化数据获取
+  async initial (ctx) {
+    const { body } = ctx.request
+    const requestId = getRequestId(ctx)
+    console.log('login body:', body)
+    const app = await Apps.findOne({ appKey: body.appKey })
+    console.log('app', app)
+    if (!app || app.status) {
+      ctx.body = builder({}, requestId, '不存在的AppKey或无效的AppKey!', 404)
+    } else {
+      ctx.body = builder({ appSecret: app.appSecret }, requestId)
+    }
+  }
+
   // 用户登录
   async login (ctx) {
     // 接收用户的数据
@@ -13,7 +28,7 @@ class LoginController {
     console.log('login head:', head)
     console.log('login body:', body)
 
-    const requestId = head.requestId ? head.requestId : ''
+    const requestId = getRequestId(ctx)
 
     // 验证用户账号密码是否正确
     let checkUserPasswd = false
