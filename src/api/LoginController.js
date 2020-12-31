@@ -67,7 +67,7 @@ class LoginController {
     const { head, body } = ctx.request.body
     console.log('reset head:', head)
     console.log('reset body:', body)
-    const requestId = head.requestId
+    const requestId = getRequestId(ctx)
 
     body.password = await bcrypt.hash(body.password, 5)
     console.log('reset pwd', body.password)
@@ -97,6 +97,10 @@ class LoginController {
     } else {
       ctx.body = builder({}, requestId, '链接已经失效！', 500)
     }
+  }
+
+  async logout (ctx) {
+    ctx.body = builder({}, getRequestId(ctx), '[测试接口] 注销成功！')
   }
 }
 

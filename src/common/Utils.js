@@ -36,7 +36,10 @@ const checkSign = async (header) => {
       requestId: header.requestid,
       uuid: header.uuid
     }
-    let appSecret = await Apps.findOne({ appKey: header.appKey })
+    let app = await Apps.findOne({ appKey: header.appkey })
+    if(!app){
+      return false
+    }
     let md5string = ''
     Object.keys(checkHead).forEach((key) => {
       if (checkHead[key] != null && typeof checkHead[key] === 'object') {
@@ -45,7 +48,7 @@ const checkSign = async (header) => {
         md5string = md5string + checkHead[key]
       }
     })
-    return header.sign === md5(md5string + appSecret)
+    return header.sign === md5(md5string + app.appSecret)
   }
 }
 

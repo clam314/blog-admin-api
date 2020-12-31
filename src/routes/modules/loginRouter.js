@@ -12,6 +12,9 @@ router.post('/initial', loginController.initial)
 // 登录接口
 router.post('/login', loginController.login)
 
+// 退出登录接口
+router.post('/logout', loginController.logout)
+
 // 重置密码
 router.post('/reset', loginController.reset)
 
