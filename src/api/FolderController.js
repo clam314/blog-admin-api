@@ -5,9 +5,9 @@ import { builder, getRequestId } from '@/common/HttpHelper'
 class FolderController {
   async getList (ctx) {
     const obj = await getJWTPayload(ctx.header.token)
-    const list = await Folders.find({ uid: obj.id, status: 0 }).sort({ _id: -1 })
+    const list = await Folders.find({ uid: obj._id, status: 0 }).sort({ name: 1 })
     if (!list) {
-      ctx.body = builder({}, getRequestId(ctx), '列表不存在', '404')
+      ctx.body = builder([], getRequestId(ctx))
     } else {
       ctx.body = builder(list, getRequestId(ctx))
     }
@@ -23,7 +23,7 @@ class FolderController {
       return
     }
     const obj = await getJWTPayload(ctx.header.token)
-    const list = await Folders.findOne({ uid: obj.id, name: newFolderName, status: 0 })
+    const list = await Folders.findOne({ uid: obj._id, name: newFolderName, status: 0 })
     if (list) {
       ctx.body = builder({}, requestId, '该文件夹已经存在', '404')
       return

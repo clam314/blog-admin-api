@@ -8,10 +8,10 @@ const router = new Router()
 router.prefix(config.getUrlPrefixStr('/article/'))
 
 // 文章列表
-router.get('/list', ArticleController.getList)
+router.post('/list', ArticleController.getList)
 
 // 添加文章
-router.get('/add', ArticleController.addArticle)
+router.post('/add', ArticleController.addArticle)
 
 // 更新文章的信息
 router.post('/updateInfo', ArticleController.updateArticleInfo)

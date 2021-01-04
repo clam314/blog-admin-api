@@ -10,8 +10,8 @@ router.prefix(config.getUrlPrefixStr('/folder/'))
 // 文件夹列表
 router.get('/list', FolderController.getList)
 
-// 添加文件
-router.get('/add', FolderController.addFolder)
+// 添加文件夹
+router.post('/add', FolderController.addFolder)
 
 // 更新文件夹的基本信息
 router.post('/update', FolderController.updateFolderInfo)
