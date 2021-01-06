@@ -59,7 +59,16 @@ class UserController {
   }
 
   async updateUserTags (ctx) {
+    const { body } = ctx.request
+    const requestId = getRequestId(ctx)
+    const tag = body.tag
+    const isDelete = body.isDelete
 
+    if (!validateStrLength(tag, 1)) {
+      ctx.body = builder({}, requestId, '信息不合法！', 400)
+      return
+    }
+    ctx.body = builder({ tag, isDelete }, requestId)
   }
 
   // 修改密码接口
@@ -70,15 +79,9 @@ class UserController {
     if (await bcrypt.compare(body.oldpwd, user.password)) {
       const newpasswd = await bcrypt.hash(body.newpwd, 5)
       await User.updateOne({ _id: obj._id }, { $set: { password: newpasswd } })
-      ctx.body = {
-        code: 200,
-        msg: '更新密码成功'
-      }
+      ctx.body = builder({}, requestId, '更新密码成功！')
     } else {
-      ctx.body = {
-        code: 500,
-        msg: '更新密码错误，请检查！'
-      }
+      ctx.body = builder({}, requestId, '更新密码错误，请检查！', 500)
     }
   }
 }
