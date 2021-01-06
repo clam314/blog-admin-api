@@ -33,7 +33,7 @@ router.get('/getCommentsCount', commentsController.getCommentsCount)
 router.get('/getNewComments', commentsController.getNewComments)
 
 // 获取用户基本信息
-router.get('/info', userController.getBasicInfo)
+router.get('/info', userController.userInfo)
 
 // 获取用户最近的发贴记录
 router.get('/latestPost', contentController.getPostPublic)

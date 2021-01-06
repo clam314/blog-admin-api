@@ -11,7 +11,7 @@ import compress from 'koa-compress'
 import config from './config/index'
 import errorHandle from './common/ErrorHandle'
 import WebSocketServer from './config/WebSocket'
-import { run } from './common/Init'
+// import { run } from './common/Init'
 import log4js from '@/config/Log4j'
 import monitorLogger from '@/common/Logger'
 import AuthCheck, { unless } from '@/common/AuthCheck'
@@ -72,5 +72,5 @@ app.listen(config.port, () => {
   console.log('app is runing at ' + 'http://localhost:' + config.port)
   const logger = log4js.getLogger('out')
   logger.info('app is runing at ' + config.port)
-  run()
+  // run()
 })

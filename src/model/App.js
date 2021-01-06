@@ -12,12 +12,14 @@ const AppsSchema = new Schema({
 })
 
 AppsSchema.pre('save', function (next) {
-  this.createTime = new Date()
+  const time = new Date().getTime()
+  this.createTime = time
+  this.updateTime = time
   next()
 })
 
 AppsSchema.pre('update', function (next) {
-  this.updateTime = new Date()
+  this.updateTime = new Date().getTime()
   next()
 })
 

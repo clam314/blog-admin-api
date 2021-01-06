@@ -37,7 +37,7 @@ const checkSign = async (header) => {
       uuid: header.uuid
     }
     let app = await Apps.findOne({ appKey: header.appkey })
-    if(!app){
+    if (!app) {
       return false
     }
     let md5string = ''
