@@ -12,6 +12,7 @@ const ArticlesSchema = new Schema({
   description: { type: String, default: '' },
   des_image: { type: String, default: '' },
   content: { type: String, default: '' },
+  contentHtml: { type: String, default: '' },
   file_type: { type: String, default: 'md' },
   published: { type: Number, default: 0 },
   private: { type: Number, default: 0 },
@@ -31,7 +32,9 @@ const ArticlesSchema = new Schema({
 
 ArticlesSchema.pre('save', function (next) {
   const time = new Date().getTime()
-  this.createTime = time
+  if (!this.createTime) {
+    this.createTime = time
+  }
   this.updateTime = time
   next()
 })
@@ -54,6 +57,12 @@ ArticlesSchema.virtual('tid').get(function () {
 })
 
 ArticlesSchema.statics = {
+  findByID (tid) {
+    return this.findOne({
+      _id: tid
+    })
+  },
+
   countNonDisabled (uid, fid) {
     return this.find({ uid, fid, status: 0 }).countDocuments()
   },

@@ -2,11 +2,11 @@ import { getJWTPayload } from '@/common/Utils'
 import Articles from '@/model/Articles'
 import { builder, getRequestId } from '@/common/HttpHelper'
 import Folders from '@/model/Folders'
-import User from '@/model/User'
 import moment from 'dayjs'
 import config from '@/config'
 import { createReadStream, createWriteStream, promises as fsp } from 'fs'
 import { v4 as uuidv4 } from 'uuid'
+import { notNullObj, validateStrLength } from '@/common/validate'
 
 class ArticleController {
   async getList (ctx) {
@@ -106,7 +106,42 @@ class ArticleController {
   }
 
   async updateContent (ctx) {
+    const requestId = getRequestId(ctx)
+    const { tid, title, contentMd, contentHtml } = ctx.request.body
 
+    const newContent = {}
+    if (validateStrLength(title, 1)) {
+      newContent.title = title
+    }
+    if (validateStrLength(contentMd, 1)) {
+      newContent.content = contentMd
+    }
+    if (validateStrLength(contentHtml, 1)) {
+      newContent.contentHtml = contentHtml
+    }
+
+    // 传入值合法
+    if (notNullObj(newContent)) {
+      const article = await Articles.findByID(tid)
+      if (article) {
+        // 值一致，无需修改数据库，否则再更新数据库
+        if (article.title === title && article.content === contentMd && article.contentHtml === contentHtml) {
+          ctx.body = builder({ article }, requestId)
+        } else {
+          const result = await Articles.updateOne({ _id: tid }, newContent)
+          // 更新成功
+          if (result.ok) {
+            ctx.body = builder({ article }, requestId)
+          } else {
+            ctx.body = builder({}, requestId, '保存失败！', 500)
+          }
+        }
+      } else {
+        ctx.body = builder({}, requestId, '参数不合法，保存失败！', 400)
+      }
+    } else {
+      ctx.body = builder({}, requestId, '参数不合法，保存失败！', 400)
+    }
   }
 
   async publish (ctx) {
