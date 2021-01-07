@@ -13,6 +13,9 @@ router.post('/list', ArticleController.getList)
 // 添加文章
 router.post('/add', ArticleController.addArticle)
 
+// 上传文章相关图片
+router.post('/img', ArticleController.uploadArticleImage)
+
 // 更新文章的信息
 router.post('/updateInfo', ArticleController.updateArticleInfo)
 

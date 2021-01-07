@@ -2,6 +2,11 @@ import { getJWTPayload } from '@/common/Utils'
 import Articles from '@/model/Articles'
 import { builder, getRequestId } from '@/common/HttpHelper'
 import Folders from '@/model/Folders'
+import User from '@/model/User'
+import moment from 'dayjs'
+import config from '@/config'
+import { createReadStream, createWriteStream, promises as fsp } from 'fs'
+import { v4 as uuidv4 } from 'uuid'
 
 class ArticleController {
   async getList (ctx) {
@@ -70,6 +75,29 @@ class ArticleController {
       ctx.body = builder(article, requestId)
     } else {
       ctx.body = builder({}, requestId, '创建失败！', 500)
+    }
+  }
+
+  async uploadArticleImage (ctx) {
+    try {
+      const requestId = getRequestId(ctx)
+      const file = ctx.request.files.file
+      const ext = file.name.split('.').pop()
+      const folder = moment().format('YYYYMMDD')
+      const dir = `${config.uploadPath}/${folder}`
+      // 判断路径是否存在，不存在则创建
+      await fsp.mkdir(dir, { recursive: true })
+
+      const picName = uuidv4().replace(/-/g, '')
+      const destPath = `${dir}/${picName}.${ext}`
+      const readerStream = createReadStream(file.path)
+      const upStream = createWriteStream(destPath)
+      readerStream.pipe(upStream)
+      const url = `${ctx.origin}/${folder}/${picName}.${ext}`
+      ctx.body = builder({ url }, requestId, '上传成功')
+    } catch (e) {
+      console.error(e)
+      ctx.body = builder({}, requestId, '服务器异常，上传失败！', 500)
     }
   }
 
