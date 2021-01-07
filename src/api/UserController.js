@@ -55,7 +55,7 @@ class UserController {
       }
       return
     }
-    ctx.body = builder({}, requestId, '信息不合法！', 400)
+    ctx.body = builder({}, requestId, '参数不合法！', 400)
   }
 
   async updateUserTags (ctx) {
@@ -64,16 +64,37 @@ class UserController {
     const tag = body.tag
     const isDelete = body.isDelete
 
-    if (!validateStrLength(tag, 1)) {
-      ctx.body = builder({}, requestId, '信息不合法！', 400)
+    if (!validateStrLength(tag, 1) || typeof isDelete === 'undefined') {
+      ctx.body = builder({}, requestId, '参数不合法！', 400)
       return
     }
-    ctx.body = builder({ tag, isDelete }, requestId)
+    const obj = await getJWTPayload(ctx.header.token)
+    const user = await User.findByID(obj._id)
+    if (user) {
+      let updateTags = false
+      if (isDelete) {
+        user.tags = user.tags.filter(t => t !== tag)
+        updateTags = true
+      } else {
+        if (!user.tags.includes(tag)) {
+          user.tags.push(tag)
+          updateTags = true
+        }
+      }
+      if (updateTags) {
+        const updateResult = await user.save()
+        console.log('update:', updateResult)
+      }
+      ctx.body = builder({ tag, isDelete }, requestId)
+      return
+    }
+    ctx.body = builder({}, requestId, '找不到该用户！', 400)
   }
 
   // 修改密码接口
   async changePasswd (ctx) {
     const { body } = ctx.request
+    const requestId = getRequestId(ctx)
     const obj = await getJWTPayload(ctx.header.authorization)
     const user = await User.findOne({ _id: obj._id })
     if (await bcrypt.compare(body.oldpwd, user.password)) {

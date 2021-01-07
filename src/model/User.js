@@ -1,5 +1,4 @@
 import mongoose from '@/config/DBHelpler'
-import { getTempName } from '@/common/Utils'
 import Roles from '@/model/Roles'
 import Permissions from '@/model/Permissions'
 
@@ -29,7 +28,9 @@ const UserSchema = new Schema({
 
 UserSchema.pre('save', function (next) {
   const time = new Date().getTime()
-  this.createTime = time
+  if (!this.createTime) {
+    this.createTime = time
+  }
   this.updateTime = time
   next()
 })
