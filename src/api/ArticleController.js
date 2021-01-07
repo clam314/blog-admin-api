@@ -79,10 +79,10 @@ class ArticleController {
   }
 
   async uploadArticleImage (ctx) {
+    const requestId = getRequestId(ctx)
     try {
-      const requestId = getRequestId(ctx)
       const file = ctx.request.files.file
-      const ext = file.name.split('.').pop()
+      const ext = file.name.split('.').pop().toLowerCase()
       const folder = moment().format('YYYYMMDD')
       const dir = `${config.uploadPath}/${folder}`
       // 判断路径是否存在，不存在则创建

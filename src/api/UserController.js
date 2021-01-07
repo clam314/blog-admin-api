@@ -109,12 +109,12 @@ class UserController {
       return
     }
 
-    const ext = file.name.split('.').pop()
-    const folder = moment().format('YYYYMMDD')
-    const dir = `${config.uploadPath}/${folder}`
-    // 判断路径是否存在，不存在则创建
-    await fsp.mkdir(dir, { recursive: true })
     try {
+      const ext = file.name.split('.').pop().toLowerCase()
+      const folder = moment().format('YYYYMMDD')
+      const dir = `${config.uploadPath}/${folder}`
+      // 判断路径是否存在，不存在则创建
+      await fsp.mkdir(dir, { recursive: true })
       const picName = uuidv4().replace(/-/g, '')
       const destPath = `${dir}/${picName}.${ext}`
       const readerStream = createReadStream(file.path)
