@@ -1,8 +1,13 @@
 import { getJWTPayload } from '@/common/Utils'
 import User from '@/model/User'
 import bcrypt from 'bcryptjs'
+import path from 'path'
 import { builder, getRequestId } from '@/common/HttpHelper'
 import { notNullObj, validateEmail, validateStrLength } from '@/common/validate'
+import config from '@/config/index'
+import { promises as fsp, createReadStream, createWriteStream } from 'fs'
+import moment from 'dayjs'
+import { v4 as uuidv4 } from 'uuid'
 
 class UserController {
   // 用户信息
@@ -58,6 +63,7 @@ class UserController {
     ctx.body = builder({}, requestId, '参数不合法！', 400)
   }
 
+  // 更新用户标签
   async updateUserTags (ctx) {
     const { body } = ctx.request
     const requestId = getRequestId(ctx)
@@ -89,6 +95,44 @@ class UserController {
       return
     }
     ctx.body = builder({}, requestId, '找不到该用户！', 400)
+  }
+
+  // 上传头像
+  async uploadAvatar (ctx) {
+    const requestId = getRequestId(ctx)
+    const file = ctx.request.files.file
+
+    const obj = await getJWTPayload(ctx.header.token)
+    const user = await User.findByID(obj._id)
+    if (!user) {
+      ctx.body = builder({}, requestId, '参数异常,上传失败！', 400)
+      return
+    }
+
+    const ext = file.name.split('.').pop()
+    const folder = moment().format('YYYYMMDD')
+    const dir = `${config.uploadPath}/${folder}`
+    // 判断路径是否存在，不存在则创建
+    await fsp.mkdir(dir, { recursive: true })
+    try {
+      const picName = uuidv4().replace(/-/g, '')
+      const destPath = `${dir}/${picName}.${ext}`
+      const readerStream = createReadStream(file.path)
+      const upStream = createWriteStream(destPath)
+      readerStream.pipe(upStream)
+      const url = `${ctx.origin}/${folder}/${picName}.${ext}`
+      user.avatar = url
+      const updateResult = await user.save()
+      console.log('updateResult:', updateResult)
+      if (updateResult) {
+        ctx.body = builder({ url }, requestId, '上传成功')
+      } else {
+        ctx.body = builder({}, requestId, '服务器异常，更新用户头像失败！', 500)
+      }
+    } catch (e) {
+      console.error(e)
+      ctx.body = builder({}, requestId, '服务器异常，上传失败！', 500)
+    }
   }
 
   // 修改密码接口

@@ -14,8 +14,6 @@ const REDIS = {
   password: process.env.REDIS_PASS || 'OUlMsFxOSa6r77s1'
 }
 
-const APP_KEY = '123456' // TODO先写死，后面从数据库查询
-
 const baseUrlPrefix = '/api'
 
 const getUrlPrefixStr = (str) => {
@@ -26,7 +24,10 @@ const SALT = '2Z!cETtfy_h720@p$!hebwk&*sPyk7Mp'
 
 const JWT_SECRET = '&Vi%33pG2mD51xMo%OUOTo$ZWOa3TYt328tcjXtW9&hn%AOb9quwaZaRMf#f&44c'
 
-const baseUrl = process.env.NODE_ENV === 'production' ? 'http://front.dev.toimc.com:22500' : 'http://localhost:8080'
+const port = 3000
+const wsPort = 3001
+
+const baseUrl = process.env.NODE_ENV === 'production' ? 'http://front.dev.toimc.com:22500' : 'http://localhost:' + port
 
 const uploadPath = process.env.NODE_ENV === 'production' ? '/app/public' : path.join(path.resolve(__dirname), '../../public')
 
@@ -35,9 +36,6 @@ const adminEmail = ['1322928787@qq.com']
 const publicPath = ['/public', '/login']
 
 const isDevMode = process.env.NODE_ENV !== 'production'
-
-const port = 3000
-const wsPort = 3001
 
 const AppID = 'wxc47d78881f2e620c'
 const AppSecret = '431a25b3bd04845338aa28631c094e7d'

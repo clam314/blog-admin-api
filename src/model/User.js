@@ -73,6 +73,12 @@ UserSchema.statics = {
     return this.find(options).countDocuments()
   },
 
+  updateAvatar (uid, url) {
+    const user = this.findByID(uid)
+    user.avatar = url
+    return user.save()
+  },
+
   updateMobile: function (uid, phone) {
     return this.updateOne({
       _id: uid

@@ -64,12 +64,12 @@ const middleware = compose([
 if (!config.isDevMode) {
   app.use(compress())
 }
-console.log(config.baseUrl + config.baseUrlPrefix)
+
 app.use(middleware)
 app.use(router())
 
 app.listen(config.port, () => {
-  console.log('app is runing at ' + 'http://localhost:' + config.port)
+  console.log('app is runing at ' + config.baseUrl + config.port)
   const logger = log4js.getLogger('out')
   logger.info('app is runing at ' + config.port)
   // run()
