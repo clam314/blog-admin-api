@@ -7,7 +7,6 @@ import config from '@/config'
 import { createReadStream, createWriteStream, promises as fsp } from 'fs'
 import { v4 as uuidv4 } from 'uuid'
 import { notNullObj, validateStrLength } from '@/common/validate'
-import User from '@/model/User'
 
 class ArticleController {
   async getList (ctx) {
@@ -16,7 +15,7 @@ class ArticleController {
     const pageNum = body.pageNum ? parseInt(body.pageNum) : 0
     const pageCount = body.pageCount ? parseInt(body.pageCount) : 10
     const fid = body.fid
-    const tid = body.tid
+    // const tid = body.tid
     const obj = await getJWTPayload(ctx.header.token)
 
     if (!fid || fid === '') {
@@ -111,7 +110,7 @@ class ArticleController {
       return
     }
     let update = false
-    if (newFid) {
+    if (newFid && newFid !== fid) {
       const folder = await Folders.findOne({ _id: newFid })
       if (folder) {
         article.fid = folder._id
@@ -134,7 +133,6 @@ class ArticleController {
     }
     if (update) {
       const updateResult = await article.save()
-      console.log('update:', updateResult)
       ctx.body = builder({ article: updateResult }, requestId)
       return
     }
@@ -162,8 +160,7 @@ class ArticleController {
         }
       }
       if (update) {
-        const updateResult = await article.save()
-        console.log('update:', updateResult)
+        await article.save()
       }
       ctx.body = builder({ tag, isDelete }, requestId)
     } else {
@@ -197,7 +194,8 @@ class ArticleController {
           const result = await Articles.updateOne({ _id: tid }, newContent)
           // 更新成功
           if (result.ok) {
-            ctx.body = builder({ article }, requestId)
+            const articleNew = await Articles.findByID(tid)
+            ctx.body = builder({ article: articleNew }, requestId)
           } else {
             ctx.body = builder({}, requestId, '保存失败！', 500)
           }
