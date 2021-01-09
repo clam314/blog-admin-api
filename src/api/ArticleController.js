@@ -7,6 +7,7 @@ import config from '@/config'
 import { createReadStream, createWriteStream, promises as fsp } from 'fs'
 import { v4 as uuidv4 } from 'uuid'
 import { notNullObj, validateStrLength } from '@/common/validate'
+import User from '@/model/User'
 
 class ArticleController {
   async getList (ctx) {
@@ -102,7 +103,72 @@ class ArticleController {
   }
 
   async updateArticleInfo (ctx) {
+    const requestId = getRequestId(ctx)
+    const { tid, fid, newFid, published, status, description } = ctx.request.body
+    const article = await Articles.findOne({ _id: tid, fid: fid })
+    if (!article) {
+      ctx.body = builder({}, requestId, '查询无此文档！', 400)
+      return
+    }
+    let update = false
+    if (newFid) {
+      const folder = await Folders.findOne({ _id: newFid })
+      if (folder) {
+        article.fid = folder._id
+        update = true
+      }
+    }
+    if (/^[0-1]$/.test(published)) {
+      article.published = published
+      update = true
+    }
+    if (Array.isArray(status) && status.length > 0) {
+      ['private', 'isTop', 'converse'].forEach(s => {
+        article[s] = Number(status.includes(s))
+      })
+      update = true
+    }
+    if (validateStrLength(description, 1, 200)) {
+      article.description = description
+      update = true
+    }
+    if (update) {
+      const updateResult = await article.save()
+      console.log('update:', updateResult)
+      ctx.body = builder({ article: updateResult }, requestId)
+      return
+    }
+    ctx.body = builder({}, requestId, '参数不合法！', 400)
+  }
 
+  async updateArticleTags (ctx) {
+    const requestId = getRequestId(ctx)
+    const { tid, tag, isDelete } = ctx.request.body
+
+    if (!validateStrLength(tag, 1) || typeof isDelete === 'undefined') {
+      ctx.body = builder({}, requestId, '参数不合法！', 400)
+      return
+    }
+    const article = await Articles.findByID(tid)
+    if (article) {
+      let update = false
+      if (isDelete) {
+        article.tags = article.tags.filter(t => t !== tag)
+        update = true
+      } else {
+        if (!article.tags.includes(tag)) {
+          article.tags.push(tag)
+          update = true
+        }
+      }
+      if (update) {
+        const updateResult = await article.save()
+        console.log('update:', updateResult)
+      }
+      ctx.body = builder({ tag, isDelete }, requestId)
+    } else {
+      ctx.body = builder({}, requestId, '参数不合法，保存失败！', 400)
+    }
   }
 
   async updateContent (ctx) {

@@ -19,6 +19,9 @@ router.post('/img', ArticleController.uploadArticleImage)
 // 更新文章的信息
 router.post('/updateInfo', ArticleController.updateArticleInfo)
 
+// 更新文章的标签
+router.post('/updateTags', ArticleController.updateArticleTags)
+
 // 更新文章的内容
 router.post('/updateContent', ArticleController.updateContent)
 
