@@ -69,7 +69,7 @@ app.use(middleware)
 app.use(router())
 
 app.listen(config.port, () => {
-  console.log('app is runing at ' + config.baseUrl + config.port)
+  console.log('app is runing at ' + config.baseUrl + ' port:' + config.port)
   const logger = log4js.getLogger('out')
   logger.info('app is runing at ' + config.port)
   // run()
