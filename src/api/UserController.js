@@ -148,7 +148,7 @@ class UserController {
       const readerStream = createReadStream(file.path)
       const upStream = createWriteStream(destPath)
       readerStream.pipe(upStream)
-      const url = `${ctx.origin}/${folder}/${picName}.${ext}`
+      const url = `${config.baseUrl}/${folder}/${picName}.${ext}`
       user.avatar = url
       const updateResult = await user.save()
       console.log('updateResult:', updateResult)

@@ -31,7 +31,7 @@ RUN apk --no-cache add --virtual builds-deps build-base python alpine-sdk \
   && npm rebuild bcrypt --build-from-source \
   && apk del builds-deps
 
-EXPOSE 3000
+EXPOSE 4000
 
 VOLUME [ "/app/public" ]
 

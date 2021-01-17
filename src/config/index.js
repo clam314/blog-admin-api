@@ -16,9 +16,9 @@ const getUrlPrefixStr = (str) => {
 
 const JWT_SECRET = process.env.JWT_SECRET
 
-const port = 4000
+const port = process.env.PORT
 
-const baseUrl = process.env.NODE_ENV === 'production' ? 'http://192.168.50.13:' + port : 'http://localhost:' + port
+const baseUrl = `${process.env.BASE_URL}:${port}`
 
 const uploadPath = process.env.NODE_ENV === 'production' ? '/app/public' : path.join(path.resolve(__dirname), '../../public')
 

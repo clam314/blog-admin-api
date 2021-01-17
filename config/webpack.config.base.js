@@ -2,9 +2,10 @@ const path = require('path')
 
 const utils = require('./utils')
 const webpack = require('webpack')
-const nodeExcternals = require('webpack-node-externals')
+const nodeExternals = require('webpack-node-externals')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
+const env = process.env.NODE_ENV
 
 const webpackconfig = {
   target: 'node',
@@ -29,11 +30,13 @@ const webpackconfig = {
       }
     ]
   },
-  externals: [nodeExcternals()],
+  externals: [nodeExternals()],
   plugins: [
     new CleanWebpackPlugin(),
     new webpack.EnvironmentPlugin(['NODE_ENV']),
-    new Dotenv()
+    new Dotenv({
+      path: env !== 'development' ? './.env' : './.env.development'
+    })
   ],
   node: {
     global: true,
@@ -41,7 +44,5 @@ const webpackconfig = {
     __dirname: true
   }
 }
-
-// console.log(webpackconfig)
 
 module.exports = webpackconfig
