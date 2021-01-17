@@ -1,6 +1,5 @@
 import Router from 'koa-router'
 import userController from '@/api/UserController'
-import errorController from '@/api/ErrorController'
 import config from '@/config'
 
 const router = new Router()
@@ -19,10 +18,7 @@ router.post('/updateTags', userController.updateUserTags)
 // 上传用户头像
 router.post('/avatar', userController.uploadAvatar)
 
-// 修改密码
-router.post('/changePassword', userController.changePasswd)
-
-// 保存错误日志
-router.post('/addError', errorController.addError)
+// // 修改密码
+// router.post('/changePassword', userController.changePasswd)
 
 export default router

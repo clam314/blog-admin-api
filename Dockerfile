@@ -27,11 +27,11 @@ RUN apk --no-cache add --virtual builds-deps build-base python alpine-sdk \
   && npm config set sharp_binary_host "https://npm.taobao.org/mirrors/sharp" \
   && npm config set sharp_libvips_binary_host "https://npm.taobao.org/mirrors/sharp-libvips" \
   && yarn install --no-progress --registry=https://registry.npm.taobao.org \
-  && npm run build:dev \
+  && npm run build \
   && npm rebuild bcrypt --build-from-source \
   && apk del builds-deps
 
-EXPOSE 3000 3001
+EXPOSE 3000
 
 VOLUME [ "/app/public" ]
 

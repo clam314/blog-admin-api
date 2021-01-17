@@ -4,7 +4,7 @@ const utils = require('./utils')
 const webpack = require('webpack')
 const nodeExcternals = require('webpack-node-externals')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const Dotenv = require('dotenv-webpack');
+const Dotenv = require('dotenv-webpack')
 
 const webpackconfig = {
   target: 'node',

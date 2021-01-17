@@ -1,18 +1,12 @@
 import path from 'path'
 
-const MONGO_USERNAME = process.env.DB_USER || 'test'
-const MONGO_PASSWORD = process.env.DB_PASS || 'imooc123'
-const MONGO_HOSTNAME = process.env.DB_HOST || 'dev.toimc.com'
-const MONGO_PORT = process.env.DB_PORT || '43130'
-const DB_NAME = process.env.DB_NAME || 'testdb'
+const MONGO_USERNAME = process.env.DB_USER
+const MONGO_PASSWORD = process.env.DB_PASS
+const MONGO_HOSTNAME = process.env.DB_HOST
+const MONGO_PORT = process.env.DB_PORT
+const DB_NAME = process.env.DB_NAME
 
 const DB_URL = `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_HOSTNAME}:${MONGO_PORT}/${DB_NAME}`
-
-const REDIS = {
-  host: process.env.REDIS_HOST || 'dev.toimc.com',
-  port: process.env.REDIS_PORT || 43131,
-  password: process.env.REDIS_PASS || 'OUlMsFxOSa6r77s1'
-}
 
 const baseUrlPrefix = '/api'
 
@@ -20,50 +14,28 @@ const getUrlPrefixStr = (str) => {
   return baseUrlPrefix + str
 }
 
-const SALT = '2Z!cETtfy_h720@p$!hebwk&*sPyk7Mp'
-
-const JWT_SECRET = '&Vi%33pG2mD51xMo%OUOTo$ZWOa3TYt328tcjXtW9&hn%AOb9quwaZaRMf#f&44c'
+const JWT_SECRET = process.env.JWT_SECRET
 
 const port = 4000
-const wsPort = 4001
 
-const baseUrl = process.env.NODE_ENV === 'production' ? 'http://front.dev.toimc.com:22500' : 'http://localhost:' + port
+const baseUrl = process.env.NODE_ENV === 'production' ? 'http://192.168.50.13:' + port : 'http://localhost:' + port
 
 const uploadPath = process.env.NODE_ENV === 'production' ? '/app/public' : path.join(path.resolve(__dirname), '../../public')
-
-const adminEmail = ['1322928787@qq.com']
 
 const publicPath = ['/public', '/login', '/blog']
 
 const isDevMode = process.env.NODE_ENV !== 'production'
 
-const AppID = 'wxc47d78881f2e620c'
-const AppSecret = '431a25b3bd04845338aa28631c094e7d'
-
-const SubIds = [
-  'e1vWHQiTOW9_cP6l31RtO_SDc41hOfhcqhWFCb0cquk',
-  '3icSr0YIBLcMSYXchHBTWgCiAAom4lrkJqZAf2pVc-4',
-  '6q9Rrn0uekifZbdMuhfzmvexEnZh0Qcv2gfHUBsi1kk',
-  'xVA_zdzgM8zPtpDOO92rpK9kQumz4O84E7sTy9Ihfds',
-  'sG80CJj2GvArifGRCWOJhumIyY5mQnM94RWGQkdctGc'
-]
-
 export default {
   DB_NAME,
   MONGO_HOSTNAME,
   DB_URL,
-  REDIS,
   JWT_SECRET,
   baseUrlPrefix,
   getUrlPrefixStr,
   baseUrl,
   uploadPath,
-  adminEmail,
   publicPath,
   isDevMode,
-  port,
-  wsPort,
-  AppID,
-  AppSecret,
-  SubIds
+  port
 }

@@ -10,17 +10,12 @@ import compose from 'koa-compose'
 import compress from 'koa-compress'
 import config from './config/index'
 import errorHandle from './common/ErrorHandle'
-import WebSocketServer from './config/WebSocket'
-// import { run } from './common/Init'
 import log4js from '@/config/Log4j'
 import monitorLogger from '@/common/Logger'
 import AuthCheck, { unless } from '@/common/AuthCheck'
 
 const app = new Koa()
-const ws = new WebSocketServer()
 
-ws.init()
-global.ws = ws
 global.console.log2 = (msg, index = 1) => { // 用于控制台打印
   console.log(`===> ${index}: `, msg)
   console.log('===> typeof: ', typeof msg)
@@ -60,7 +55,6 @@ const middleware = compose([
     })
 ])
 
-// app.use(AuthCheck)
 if (!config.isDevMode) {
   app.use(compress())
 }
@@ -69,8 +63,6 @@ app.use(middleware)
 app.use(router())
 
 app.listen(config.port, () => {
-  console.log('app is runing at ' + config.baseUrl + ' port:' + config.port)
   const logger = log4js.getLogger('out')
-  logger.info('app is runing at ' + config.port)
-  // run()
+  logger.info('app is runing at ' + config.baseUrl)
 })
