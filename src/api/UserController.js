@@ -26,8 +26,9 @@ class UserController {
   // 用户基本信息
   async userBasicInfo (ctx) {
     // 取用户的ID
-    console.log('userBasicInfo:', ctx.header)
-    const uid = ctx.header.bid
+    console.log('userBasicInfo:', ctx)
+    const { body } = ctx.request
+    const uid = body.bid
     if (!uid) {
       ctx.body = builder({}, getRequestId(ctx), '参数不合法！', '400')
       return

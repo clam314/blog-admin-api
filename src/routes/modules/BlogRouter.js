@@ -9,13 +9,13 @@ const router = new Router()
 router.prefix(config.getUrlPrefixStr('/blog/'))
 
 // 用户信息
-router.get('/user', userController.userBasicInfo)
+router.post('/user', userController.userBasicInfo)
 
 // 文章列表
-router.post('/list', ArticleController.getList)
+router.post('/list', ArticleController.getBlogArticles)
 
-// 文章列表
-router.post('/details', ArticleController.getList)
+// 文章详情
+router.post('/details', ArticleController.getArticleDetail)
 
 /**
  *  TODO

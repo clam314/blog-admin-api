@@ -7,6 +7,8 @@ import config from '@/config'
 import { createReadStream, createWriteStream, promises as fsp } from 'fs'
 import { v4 as uuidv4 } from 'uuid'
 import { notNullObj, validateStrLength } from '@/common/validate'
+import { decode } from 'js-base64'
+import User from '@/model/User'
 
 class ArticleController {
   async getList (ctx) {
@@ -214,6 +216,91 @@ class ArticleController {
 
   async deleteArticle (ctx) {
 
+  }
+
+  async getBlogArticles (ctx) {
+    const { body } = ctx.request
+    const requestId = getRequestId(ctx)
+    const bid = body.bid
+    const fid = body.fid
+    const pageNum = body.pageNum ? parseInt(body.pageNum) : 0
+    const pageCount = body.pageCount ? parseInt(body.pageCount) : 10
+
+    if (!bid) {
+      ctx.body = builder({}, requestId, '请求参数有误！', '400')
+      return
+    }
+    const find = { uid: decode(bid), published: 1, private: 0, status: 0 }
+    if (fid) {
+      find.fid = fid
+    }
+    const list = await Articles.find(find, {
+      description: 1,
+      des_image: 1,
+      published: 1,
+      reads: 1,
+      like: 1,
+      comments: 1,
+      converse: 1,
+      isTop: 1,
+      sort: 1,
+      tags: 1,
+      title: 1,
+      tid: 1
+    }).skip(pageNum * pageCount).limit(pageCount)
+    const total = await Articles.find(find).countDocuments()
+    const result = {
+      pageNum,
+      pageCount,
+      total,
+      list
+    }
+    result.list = list || []
+    ctx.body = builder(result, getRequestId(ctx))
+  }
+
+  async getArticleDetail (ctx) {
+    const requestId = getRequestId(ctx)
+    const { bid, tid } = ctx.request.body
+
+    if (!tid || !bid) {
+      ctx.body = builder({}, getRequestId(ctx), '参数不合法！', '400')
+      return
+    }
+    const find = { _id: tid, uid: decode(bid), published: 1, private: 0, status: 0 }
+
+    const article = await Articles.findOne(find, {
+      _id: 1,
+      description: 1,
+      des_image: 1,
+      reads: 1,
+      like: 1,
+      comments: 1,
+      converse: 1,
+      isTop: 1,
+      sort: 1,
+      tags: 1,
+      publishedTime: 1,
+      uid: '5fe8c23677720000fd00570c',
+      fid: '5ff335062dd3ca52dc1c59d5',
+      title: 1,
+      contentHtml: 1
+    })
+
+    if (!article) {
+      ctx.body = builder({}, getRequestId(ctx), '文章不存在！', '404')
+      return
+    }
+    const folder = await Folders.findById(article.fid)
+    const user = await User.findByID(article.uid)
+    delete article.uid
+    delete article.fid
+    article.category = folder.name
+    article.userInfo = {
+      name: user.name,
+      avatar: user.avatar
+    }
+    ctx.body = builder(article, requestId)
   }
 }
 
