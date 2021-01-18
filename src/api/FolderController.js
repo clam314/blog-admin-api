@@ -1,6 +1,7 @@
 import Folders from '@/model/Folders'
 import { getJWTPayload } from '@/common/Utils'
 import { builder, getRequestId } from '@/common/HttpHelper'
+import { decode } from 'js-base64'
 
 class FolderController {
   async getList (ctx) {
@@ -10,6 +11,28 @@ class FolderController {
       ctx.body = builder([], getRequestId(ctx))
     } else {
       ctx.body = builder(list, getRequestId(ctx))
+    }
+  }
+
+  async getBlogCategories (ctx) {
+    const requestId = getRequestId(ctx)
+    const { bid } = ctx.request.body
+
+    if (!bid) {
+      ctx.body = builder({}, requestId, '参数不合法！', '400')
+      return
+    }
+    const find = { uid: decode(bid), status: 0 }
+
+    const list = await Folders.find(find, {
+      _id: 1,
+      name: 1,
+      fid: 1
+    })
+    if (list) {
+      ctx.body = builder(list, requestId)
+    } else {
+      ctx.body = builder({}, requestId, '数据为空！', 404)
     }
   }
 

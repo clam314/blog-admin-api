@@ -7,7 +7,7 @@ services:
       args:
         Version: ${Version}
     image: api_online:${tag}
-    container_name: api_online
+    container_name: blog_api_online
     restart: always
     # env_file: .env
     environment:
@@ -16,18 +16,12 @@ services:
       - DB_HOST=$DB_HOST
       - DB_PORT=$DB_PORT
       - DB_NAME=$DB_NAME
-      - REDIS_HOST=$REDIS_HOST
-      - REDIS_PORT=$REDIS_PORT
-      - REDIS_PASS=$REDIS_PASS
-      - WX_SECRET=$WX_SECRET
-      - WX_APPID=$WX_APPID
-      - OBS_KEYID=$OBS_KEYID
-      - OBS_ACCESSKEY=$OBS_ACCESSKEY
+      - BASE_URL=$BASE_URL
+      - PORT=$PORT
     ports:
-      - "${PORT}:3000"
-      - "${WS_PORT}:3001"
+      - "${PORT}:4000"
     volumes:
-      - /home/imooc/online:/app/public
+      - /home/html/public:/app/public
 
 networks:
   default:

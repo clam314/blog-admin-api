@@ -281,8 +281,8 @@ class ArticleController {
       sort: 1,
       tags: 1,
       publishedTime: 1,
-      uid: '5fe8c23677720000fd00570c',
-      fid: '5ff335062dd3ca52dc1c59d5',
+      uid: 1,
+      fid: 1,
       title: 1,
       contentHtml: 1
     })

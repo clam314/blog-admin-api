@@ -3,6 +3,7 @@ import ArticleController from '@/api/ArticleController'
 
 import config from '@/config'
 import userController from '@/api/UserController'
+import FolderController from '@/api/FolderController'
 
 const router = new Router()
 
@@ -10,6 +11,9 @@ router.prefix(config.getUrlPrefixStr('/blog/'))
 
 // 用户信息
 router.post('/user', userController.userBasicInfo)
+
+// 获取文章分类
+router.post('/categories', FolderController.getBlogCategories)
 
 // 文章列表
 router.post('/list', ArticleController.getBlogArticles)
