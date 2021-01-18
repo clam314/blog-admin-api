@@ -1,4 +1,6 @@
 import mongoose from '@/config/DBHelpler'
+import User from '@/model/User'
+import Folders from '@/model/Folders'
 
 const Schema = mongoose.Schema
 
@@ -70,6 +72,21 @@ ArticlesSchema.statics = {
   getArticlesNonDisabled (uid, fid, pageNum, pageCount) {
     return this.find({ uid, fid, status: 0 })
       .skip(pageNum * pageCount).limit(pageCount)
+  },
+
+  getArticlesWithUserAndFolder (find, filter, pageNum, pageCount) {
+    return this.find(find, filter)
+      .skip(pageNum * pageCount)
+      .limit(pageCount)
+      .populate({
+        path: 'uid',
+        model: User,
+        select: 'name avatar'
+      }).populate({
+        path: 'fid',
+        model: Folders,
+        select: 'name'
+      })
   }
 }
 

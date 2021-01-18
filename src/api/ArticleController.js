@@ -234,7 +234,7 @@ class ArticleController {
     if (fid) {
       find.fid = fid
     }
-    const list = await Articles.find(find, {
+    const list = await Articles.getArticlesWithUserAndFolder(find, {
       description: 1,
       des_image: 1,
       published: 1,
@@ -246,16 +246,31 @@ class ArticleController {
       sort: 1,
       tags: 1,
       title: 1,
-      tid: 1
-    }).skip(pageNum * pageCount).limit(pageCount)
+      tid: 1,
+      uid: 1,
+      fid: 1
+    }, pageNum, pageCount)
     const total = await Articles.find(find).countDocuments()
     const result = {
       pageNum,
       pageCount,
-      total,
-      list
+      total
     }
-    result.list = list || []
+    if (list) {
+      const newList = []
+      list.forEach(item => {
+        const nItem = item.toJSON()
+        delete nItem.uid._id
+        nItem.user = nItem.uid
+        nItem.category = nItem.fid.name
+        delete nItem.uid
+        delete nItem.fid
+        newList.push(nItem)
+      })
+      result.list = newList
+    } else {
+      result.list = []
+    }
     ctx.body = builder(result, getRequestId(ctx))
   }
 
