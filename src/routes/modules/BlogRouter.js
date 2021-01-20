@@ -1,10 +1,10 @@
 import Router from 'koa-router'
-import ArticleController from '@/api/ArticleController'
-
 import config from '@/config'
+import ArticleController from '@/api/ArticleController'
 import userController from '@/api/UserController'
 import FolderController from '@/api/FolderController'
 import LinkController from '@/api/LinkController'
+import FileController from '@/api/FileController'
 
 const router = new Router()
 
@@ -28,6 +28,8 @@ router.post('/like', ArticleController.likeArticle)
 // 获取友链列表
 router.post('/links', LinkController.getBlogLinks)
 
+// 随机图片
+router.get('/random', FileController.randomImg)
 /**
  *  TODO
  *  1、评论接口
