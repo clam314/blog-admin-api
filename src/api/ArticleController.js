@@ -306,6 +306,10 @@ class ArticleController {
       ctx.body = builder({}, getRequestId(ctx), '文章不存在！', '404')
       return
     }
+    // 每次查询具体内容，算作阅读一次
+    article.reads = article.reads + 1
+    await Articles.updateOne({ _id: article._id }, { reads: article.reads })
+
     const folder = await Folders.findById(article.fid)
     const user = await User.findByID(article.uid)
     delete article.uid
@@ -316,6 +320,23 @@ class ArticleController {
       avatar: user.avatar
     }
     ctx.body = builder(article, requestId)
+  }
+
+  async likeArticle (ctx) {
+    const requestId = getRequestId(ctx)
+    const { bid, tid } = ctx.request.body
+
+    if (!tid || !bid) {
+      ctx.body = builder({}, getRequestId(ctx), '参数不合法！', '400')
+      return
+    }
+
+    const result = await Articles.updateOne({ _id: tid }, { reads: article.reads })
+    if (result.ok) {
+      ctx.body = builder({}, requestId)
+    } else {
+      ctx.body = builder({}, requestId, '更新失败！', 500)
+    }
   }
 }
 
