@@ -1,5 +1,5 @@
 import sent from 'koa-send'
-import { promises as fsp, createReadStream } from 'fs'
+import { promises as fsp } from 'fs'
 import config from '@/config/index'
 
 const imgPath = ['webp', 'img']
@@ -11,9 +11,10 @@ class FileController {
       ctx.status = 404
       return
     }
-    const dir = `${config.uploadPath}/${img.toLocaleString()}`
+    const { accept } = ctx.headers
+    const isSupportWebP = accept ? /image\/webp/.test(accept) : false
+    const dir = `${config.uploadPath}/${isSupportWebP ? imgPath[0] : imgPath[1]}`
     const images = await fsp.readdir(dir)
-    console.log('images: ', images)
     const fileName = images[Math.floor(Math.random() * images.length)]
     await sent(ctx, fileName, {
       root: dir,
