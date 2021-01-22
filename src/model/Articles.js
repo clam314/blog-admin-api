@@ -13,10 +13,10 @@ const ArticlesSchema = new Schema({
   updateTime: { type: String, default: '' },
   description: { type: String, default: '' },
   des_image: { type: String, default: '' },
-  content: { type: String, default: '' },
+  content: { type: String, default: '' }, // 编辑的内容
   contentHtml: { type: String, default: '' },
   file_type: { type: String, default: 'md' },
-  published: { type: Number, default: 0 },
+  published: { type: Number, default: 0 }, // 发布的状态
   private: { type: Number, default: 0 },
   reads: { type: Number, default: 0 },
   like: { type: Number, default: 0 },
@@ -24,7 +24,11 @@ const ArticlesSchema = new Schema({
   converse: { type: Number, default: 0 },
   isTop: { type: Number, default: 0 },
   sort: { type: Number, default: 0 },
-  tags: { type: [String], default: [] }
+  tags: { type: [String], default: [] },
+  publishedTime: { type: String, default: '' }, // 发布的时间
+  publishedContent: { type: String, default: '' }, // 发布的内容
+  history: { type: [String], default: [], ref: 'History' }, // 编辑的历史记录
+  commentList: { type: [String], default: [], ref: 'Comments' } // 评论内容
 }, {
   toJSON: { virtuals: true },
   toObject: { getters: true },
@@ -70,7 +74,14 @@ ArticlesSchema.statics = {
   },
 
   getArticlesNonDisabled (uid, fid, pageNum, pageCount) {
-    return this.find({ uid, fid, status: 0 })
+    return this.find({ uid, fid, status: 0 }, {
+      description: 1,
+      updateTime: 1,
+      title: 1,
+      tid: 1,
+      uid: 1,
+      fid: 1
+    })
       .skip(pageNum * pageCount).limit(pageCount)
   },
 

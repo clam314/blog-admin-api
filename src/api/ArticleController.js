@@ -9,8 +9,10 @@ import { v4 as uuidv4 } from 'uuid'
 import { notNullObj, validateStrLength } from '@/common/validate'
 import { decode } from 'js-base64'
 import User from '@/model/User'
+import History from '@/model/History'
 
 class ArticleController {
+  // 获取文章列表（不含具体内容）
   async getList (ctx) {
     const { body } = ctx.request
     const requestId = getRequestId(ctx)
@@ -21,7 +23,7 @@ class ArticleController {
     const obj = await getJWTPayload(ctx.header.token)
 
     if (!fid || fid === '') {
-      ctx.body = builder({}, requestId, '请求参数有误！', '400')
+      ctx.body = builder({}, requestId, '请求参数有误！', 400)
       return
     }
 
@@ -37,6 +39,7 @@ class ArticleController {
     ctx.body = builder(result, getRequestId(ctx))
   }
 
+  // 新建文章
   async addArticle (ctx) {
     const { body } = ctx.request
     const requestId = getRequestId(ctx)
@@ -45,25 +48,25 @@ class ArticleController {
     const fid = body.fid
 
     if (!newTitle || newTitle === '') {
-      ctx.body = builder({}, requestId, '请输入文档名称', '400')
+      ctx.body = builder({}, requestId, '请输入文档名称', 400)
       return
     }
 
     if (!fid || fid === '') {
-      ctx.body = builder({}, requestId, '请求参数有误！', '400')
+      ctx.body = builder({}, requestId, '请求参数有误！', 400)
       return
     }
 
     const folder = await Folders.findOne({ _id: fid })
     if (!folder) {
-      ctx.body = builder({}, requestId, '请求参数有误', '400')
+      ctx.body = builder({}, requestId, '请求参数有误', 400)
       return
     }
 
     const obj = await getJWTPayload(ctx.header.token)
     const list = await Articles.findOne({ fid: fid, title: newTitle, status: 0 })
     if (list) {
-      ctx.body = builder({}, requestId, '该文档已经存在', '400')
+      ctx.body = builder({}, requestId, '该文档已经存在', 400)
       return
     }
 
@@ -80,6 +83,7 @@ class ArticleController {
     }
   }
 
+  // 上传文章图片
   async uploadArticleImage (ctx) {
     const requestId = getRequestId(ctx)
     try {
@@ -95,7 +99,7 @@ class ArticleController {
       const readerStream = createReadStream(file.path)
       const upStream = createWriteStream(destPath)
       readerStream.pipe(upStream)
-      const url = `${ctx.origin}/${folder}/${picName}.${ext}`
+      const url = `${config.baseUrl}/${folder}/${picName}.${ext}`
       ctx.body = builder({ url }, requestId, '上传成功')
     } catch (e) {
       console.error(e)
@@ -103,6 +107,7 @@ class ArticleController {
     }
   }
 
+  // 更新文章相关信息
   async updateArticleInfo (ctx) {
     const requestId = getRequestId(ctx)
     const { tid, fid, newFid, published, status, description } = ctx.request.body
@@ -141,6 +146,7 @@ class ArticleController {
     ctx.body = builder({}, requestId, '参数不合法！', 400)
   }
 
+  // 更新文章标签
   async updateArticleTags (ctx) {
     const requestId = getRequestId(ctx)
     const { tid, tag, isDelete } = ctx.request.body
@@ -170,6 +176,7 @@ class ArticleController {
     }
   }
 
+  // 更新文章内容（不是发布的内容）
   async updateContent (ctx) {
     const requestId = getRequestId(ctx)
     const { tid, title, contentMd, contentHtml } = ctx.request.body
@@ -193,11 +200,17 @@ class ArticleController {
         if (article.title === title && article.content === contentMd && article.contentHtml === contentHtml) {
           ctx.body = builder({ article }, requestId)
         } else {
-          const result = await Articles.updateOne({ _id: tid }, newContent)
+          for (const key in newContent) {
+            article[key] = newContent[key]
+          }
+          const history = await History.saveHistory(article._id, article.title, article.content, article.contentHtml)
+          if (history) {
+            article.history.push(history)
+          }
+          const newArticle = await article.save()
           // 更新成功
-          if (result.ok) {
-            const articleNew = await Articles.findByID(tid)
-            ctx.body = builder({ article: articleNew }, requestId)
+          if (newArticle) {
+            ctx.body = builder({ article: newArticle }, requestId)
           } else {
             ctx.body = builder({}, requestId, '保存失败！', 500)
           }
@@ -210,14 +223,50 @@ class ArticleController {
     }
   }
 
+  // 发布文章
   async publish (ctx) {
+    const requestId = getRequestId(ctx)
+    const { tid, title, content } = ctx.request.body
 
+    if (!tid || !title || !content) {
+      ctx.body = builder({}, requestId, '请求参数有误！', 400)
+      return
+    }
+    const article = await Articles.findById(tid)
+    if (!article) {
+      ctx.body = builder({}, requestId, '查询无此文档！', 400)
+      return
+    }
+    if (article.title !== title || article.content !== content) {
+      ctx.body = builder({}, requestId, '请先保存文档！', 400)
+      return
+    }
+    article.publishedContent = article.contentHtml
+    article.published = 1
+    article.publishedTime = new Date().getTime()
+    await article.save()
+    ctx.body = builder({ publishedTime: article.publishedTime, published: true }, requestId)
   }
 
+  // 删除文章，不从数据库移除，但是状态值1和发布置0，表示禁用
   async deleteArticle (ctx) {
+    const requestId = getRequestId(ctx)
+    const { tid } = ctx.request.body
 
+    if (!tid) {
+      ctx.body = builder({}, requestId, '请求参数有误！', 400)
+      return
+    }
+    const result = await Articles.updateOne({ _id: tid }, { status: 1, published: 0 })
+    await History.update({ tid: tid }, { status: 1 })
+    if (result.ok) {
+      ctx.body = builder({ tid: tid, delete: true }, requestId)
+    } else {
+      ctx.body = builder({}, requestId, '删除失败！', 500)
+    }
   }
 
+  // 返回博客的文章列表
   async getBlogArticles (ctx) {
     const { body } = ctx.request
     const requestId = getRequestId(ctx)
@@ -227,7 +276,7 @@ class ArticleController {
     const pageCount = body.pageCount ? parseInt(body.pageCount) : 10
 
     if (!bid) {
-      ctx.body = builder({}, requestId, '请求参数有误！', '400')
+      ctx.body = builder({}, requestId, '请求参数有误！', 400)
       return
     }
     const find = { uid: decode(bid), published: 1, private: 0, status: 0 }
@@ -248,7 +297,8 @@ class ArticleController {
       title: 1,
       tid: 1,
       uid: 1,
-      fid: 1
+      fid: 1,
+      publishedTime: 1
     }, pageNum, pageCount)
     const total = await Articles.find(find).countDocuments()
     const result = {
@@ -274,12 +324,13 @@ class ArticleController {
     ctx.body = builder(result, getRequestId(ctx))
   }
 
+  // 获取文章内容详情
   async getArticleDetail (ctx) {
     const requestId = getRequestId(ctx)
     const { bid, tid } = ctx.request.body
 
     if (!tid || !bid) {
-      ctx.body = builder({}, getRequestId(ctx), '参数不合法！', '400')
+      ctx.body = builder({}, getRequestId(ctx), '参数不合法！', 400)
       return
     }
     const find = { _id: tid, uid: decode(bid), published: 1, private: 0, status: 0 }
@@ -299,11 +350,11 @@ class ArticleController {
       uid: 1,
       fid: 1,
       title: 1,
-      contentHtml: 1
+      publishedContent: 1
     })
 
     if (!article) {
-      ctx.body = builder({}, getRequestId(ctx), '文章不存在！', '404')
+      ctx.body = builder({}, getRequestId(ctx), '文章不存在！', 404)
       return
     }
     // 每次查询具体内容，算作阅读一次
@@ -322,12 +373,13 @@ class ArticleController {
     ctx.body = builder(article, requestId)
   }
 
+  // 点赞
   async likeArticle (ctx) {
     const requestId = getRequestId(ctx)
     const { bid, tid } = ctx.request.body
 
     if (!tid || !bid) {
-      ctx.body = builder({}, getRequestId(ctx), '参数不合法！', '400')
+      ctx.body = builder({}, getRequestId(ctx), '参数不合法！', 400)
       return
     }
 
