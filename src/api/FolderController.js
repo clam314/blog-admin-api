@@ -6,7 +6,7 @@ import { decode } from 'js-base64'
 class FolderController {
   async getList (ctx) {
     const obj = await getJWTPayload(ctx.header.token)
-    const list = await Folders.find({ uid: obj._id, status: 0 }).sort({ name: 1 })
+    const list = await Folders.find({ uid: obj._id, status: 0 }).sort({ updateTime: -1 })
     if (!list) {
       ctx.body = builder([], getRequestId(ctx))
     } else {
@@ -28,7 +28,7 @@ class FolderController {
       _id: 1,
       name: 1,
       fid: 1
-    })
+    }).sort({ name: 1 })
     if (list) {
       ctx.body = builder(list, requestId)
     } else {

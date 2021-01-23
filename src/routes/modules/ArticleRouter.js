@@ -25,6 +25,12 @@ router.post('/updateTags', ArticleController.updateArticleTags)
 // 更新文章的内容
 router.post('/updateContent', ArticleController.updateContent)
 
+// 获取文章内容
+router.post('/getContent', ArticleController.getArticleContent)
+
+// 获取文章基本信息
+router.post('/basic', ArticleController.getArticleBasicInfo)
+
 // 发布文章
 router.post('/publish', ArticleController.publish)
 

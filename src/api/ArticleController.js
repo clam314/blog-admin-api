@@ -140,7 +140,14 @@ class ArticleController {
     }
     if (update) {
       const updateResult = await article.save()
-      ctx.body = builder({ article: updateResult }, requestId)
+      ctx.body = builder({
+        tid: updateResult.tid,
+        fid: updateResult.fid,
+        title: updateResult.title,
+        description: updateResult.description,
+        updateTime: updateResult.updateTime,
+        published: updateResult.published
+      }, requestId)
       return
     }
     ctx.body = builder({}, requestId, '参数不合法！', 400)
@@ -244,8 +251,8 @@ class ArticleController {
     article.publishedContent = article.contentHtml
     article.published = 1
     article.publishedTime = new Date().getTime()
-    await article.save()
-    ctx.body = builder({ publishedTime: article.publishedTime, published: true }, requestId)
+    const newA = await article.save()
+    ctx.body = builder({ tid: newA.tid, publishedTime: newA.publishedTime, published: true }, requestId)
   }
 
   // 删除文章，不从数据库移除，但是状态值1和发布置0，表示禁用
@@ -263,6 +270,32 @@ class ArticleController {
       ctx.body = builder({ tid: tid, delete: true }, requestId)
     } else {
       ctx.body = builder({}, requestId, '删除失败！', 500)
+    }
+  }
+
+  // 获取文章基本基本信息
+  async getArticleBasicInfo (ctx) {
+    const requestId = getRequestId(ctx)
+    const { tid } = ctx.request.body
+    if (!tid) {
+      ctx.body = builder({}, getRequestId(ctx), '参数不合法！', 400)
+      return
+    }
+    const obj = await getJWTPayload(ctx.header.token)
+    const find = { _id: tid, uid: obj._id, status: 0 }
+
+    const article = await Articles.findOne(find, {
+      publishedContent: 0,
+      contentHtml: 0,
+      commentList: 0,
+      history: 0,
+      content: 0
+    })
+
+    if (!article) {
+      ctx.body = builder({}, getRequestId(ctx), '文章不存在！', 404)
+    } else {
+      ctx.body = builder(article, requestId)
     }
   }
 
@@ -324,7 +357,32 @@ class ArticleController {
     ctx.body = builder(result, getRequestId(ctx))
   }
 
-  // 获取文章内容详情
+  // 获取文章的内容详情
+  async getArticleContent (ctx) {
+    const requestId = getRequestId(ctx)
+    const { tid } = ctx.request.body
+    if (!tid) {
+      ctx.body = builder({}, getRequestId(ctx), '参数不合法！', 400)
+      return
+    }
+    const obj = await getJWTPayload(ctx.header.token)
+    const find = { _id: tid, uid: obj._id, status: 0 }
+
+    const article = await Articles.findOne(find, {
+      content: 1,
+      title: 1,
+      _id: 1,
+      fid: 1
+    })
+
+    if (!article) {
+      ctx.body = builder({}, getRequestId(ctx), '文章不存在！', 404)
+    } else {
+      ctx.body = builder(article, requestId)
+    }
+  }
+
+  // 获取博客文章的内容详情
   async getArticleDetail (ctx) {
     const requestId = getRequestId(ctx)
     const { bid, tid } = ctx.request.body

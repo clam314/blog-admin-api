@@ -77,11 +77,13 @@ ArticlesSchema.statics = {
     return this.find({ uid, fid, status: 0 }, {
       description: 1,
       updateTime: 1,
+      published: 1,
+      publishedTime: 1,
       title: 1,
       tid: 1,
       uid: 1,
       fid: 1
-    })
+    }).sort({ updateTime: -1 })
       .skip(pageNum * pageCount).limit(pageCount)
   },
 
