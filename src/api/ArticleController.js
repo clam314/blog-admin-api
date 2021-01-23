@@ -448,6 +448,40 @@ class ArticleController {
       ctx.body = builder({}, requestId, '更新失败！', 500)
     }
   }
+
+  // 上传文章封面图片
+  async updateCover (ctx) {
+    const requestId = getRequestId(ctx)
+    const tid = ctx.request.body.tid
+    const file = ctx.request.files.file
+    if (!tid || !file) {
+      ctx.body = builder({}, getRequestId(ctx), '参数不合法！', 400)
+      return
+    }
+    try {
+      const ext = file.name.split('.').pop().toLowerCase()
+      const folder = 'articles'
+      const dir = `${config.uploadPath}/${folder}`
+      // 判断路径是否存在，不存在则创建
+      await fsp.mkdir(dir, { recursive: true })
+
+      const picName = uuidv4().replace(/-/g, '')
+      const destPath = `${dir}/${picName}.${ext}`
+      const readerStream = createReadStream(file.path)
+      const upStream = createWriteStream(destPath)
+      readerStream.pipe(upStream)
+      const url = `${config.baseUrl}/${folder}/${picName}.${ext}`
+      const result = await Articles.updateOne({ _id: tid }, { des_image: url })
+      if (result.ok) {
+        ctx.body = builder({ url }, requestId, '上传成功')
+      } else {
+        ctx.body = builder({}, requestId, '服务器异常，上传失败！', 500)
+      }
+    } catch (e) {
+      console.error(e)
+      ctx.body = builder({}, requestId, '服务器异常，上传失败！', 500)
+    }
+  }
 }
 
 export default new ArticleController()

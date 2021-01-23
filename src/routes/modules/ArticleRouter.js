@@ -37,4 +37,7 @@ router.post('/publish', ArticleController.publish)
 // 删除文章
 router.post('/delete', ArticleController.deleteArticle)
 
+// 更新文章封面
+router.post('/updateCover', ArticleController.updateCover)
+
 export default router
