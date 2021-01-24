@@ -14,6 +14,8 @@ const getUrlPrefixStr = (str) => {
   return baseUrlPrefix + str
 }
 
+const PRIVATE_KEY = process.env.PRIVATE_KEY
+
 const JWT_SECRET = process.env.JWT_SECRET
 
 const port = process.env.PORT
@@ -31,6 +33,7 @@ export default {
   MONGO_HOSTNAME,
   DB_URL,
   JWT_SECRET,
+  PRIVATE_KEY,
   baseUrlPrefix,
   getUrlPrefixStr,
   baseUrl,

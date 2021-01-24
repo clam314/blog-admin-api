@@ -3,6 +3,8 @@ import { generateToken } from '@/common/Utils'
 import Apps from '@/model/App'
 import User from '@/model/User'
 import { builder, getRequestId } from '@/common/HttpHelper'
+import config from '@/config'
+import crypto from 'crypto'
 
 class LoginController {
   // 初始化数据获取
@@ -23,28 +25,24 @@ class LoginController {
   async login (ctx) {
     // 接收用户的数据
     // 返回token
-    const { header: head, body } = ctx.request
-    console.log('login head:', head)
-    console.log('login body:', body)
-
+    const { body } = ctx.request
     const requestId = getRequestId(ctx)
 
     // 验证用户账号密码是否正确
     let checkUserPasswd = false
     const user = await User.findOne({ username: body.username })
-    console.log('user', user)
     if (user === null) {
       ctx.body = builder({}, requestId, '用户名或者密码错误', 404)
       return
     }
-    if (await bcrypt.compare(body.password, user.password)) {
+    const pw = crypto.privateDecrypt({ key: config.PRIVATE_KEY, padding: crypto.constants.RSA_PKCS1_PADDING }, Buffer.from(body.password, 'base64')).toString('utf-8')
+    if (await bcrypt.compare(pw, user.password)) {
       checkUserPasswd = true
     }
     // 生成token
     if (checkUserPasswd) {
       ctx.body = builder({
-        token: generateToken({ _id: user._id }, '7d'),
-        refreshToken: generateToken({ _id: user._id }, '7d')
+        token: generateToken({ _id: user._id }, '7d')
       }, requestId)
     } else {
       // 用户名 密码验证失败，返回提示
