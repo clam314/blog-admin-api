@@ -89,6 +89,7 @@ ArticlesSchema.statics = {
 
   getArticlesWithUserAndFolder (find, filter, pageNum, pageCount) {
     return this.find(find, filter)
+      .sort({ updateTime: -1 })
       .skip(pageNum * pageCount)
       .limit(pageCount)
       .populate({

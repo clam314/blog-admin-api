@@ -128,7 +128,7 @@ class ArticleController {
       article.published = published
       update = true
     }
-    if (Array.isArray(status) && status.length > 0) {
+    if (Array.isArray(status)) {
       ['private', 'isTop', 'converse'].forEach(s => {
         article[s] = Number(status.includes(s))
       })
@@ -441,7 +441,7 @@ class ArticleController {
       return
     }
 
-    const result = await Articles.updateOne({ _id: tid }, { reads: article.reads })
+    const result = await Articles.updateOne({ _id: tid }, { $inc: { like: 1 } })
     if (result.ok) {
       ctx.body = builder({}, requestId)
     } else {
