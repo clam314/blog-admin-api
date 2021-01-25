@@ -19,7 +19,7 @@ RUN apk add --no-cache bash git \
   && cd /app \
   && rm -rf .git
 
-COPY .env /app
+#COPY .env /app
 
 # 设置第三方依赖包sharp的镜像地址
 RUN apk --no-cache add --virtual builds-deps build-base python alpine-sdk \
@@ -33,6 +33,6 @@ RUN apk --no-cache add --virtual builds-deps build-base python alpine-sdk \
 
 EXPOSE 4000
 
-VOLUME [ "/app/public" ]
+VOLUME [ "/app/public", "/app/.env"]
 
 CMD [ "node", "dist/server.bundle.js" ]
