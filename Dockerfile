@@ -26,7 +26,7 @@ RUN apk --no-cache add --virtual builds-deps build-base python alpine-sdk \
   && apk add --upgrade --no-cache vips-dev --repository https://mirrors.tuna.tsinghua.edu.cn/alpine/v3.10/community/ \
   && npm config set sharp_binary_host "https://npm.taobao.org/mirrors/sharp" \
   && npm config set sharp_libvips_binary_host "https://npm.taobao.org/mirrors/sharp-libvips" \
-  && yarn install --production --no-progress --registry=https://registry.npm.taobao.org \
+  && yarn install --no-progress --registry=https://registry.npm.taobao.org \
   && npm run build \
   && npm rebuild bcrypt --build-from-source \
   && apk del builds-deps
