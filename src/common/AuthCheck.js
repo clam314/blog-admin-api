@@ -2,7 +2,7 @@
  * 检查头部是否带有appkey以及是否不需要校验jwt的目录
  *
  */
-import { checkToken, checkSign, checkRedisAccountCode } from '@/common/Utils'
+import { checkToken, checkSign } from '@/common/Utils'
 import config from '@/config/index'
 import { builder, getRequestId } from '@/common/HttpHelper'
 
