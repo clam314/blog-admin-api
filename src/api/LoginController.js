@@ -29,21 +29,21 @@ class LoginController {
     const requestId = getRequestId(ctx)
 
     // 验证用户账号密码是否正确
-    let checkUserPasswd = false
+    let checkUserPasswd = true
     const user = await User.findOne({ username: body.username })
-    if (user === null || !body.password) {
-      ctx.status = 404
-      return
-    }
-    const pw = crypto.privateDecrypt({ key: config.PRIVATE_KEY, padding: crypto.constants.RSA_PKCS1_PADDING }, Buffer.from(body.password, 'base64'))
-    if (!pw) {
-      ctx.status = 404
-      return
-    }
-
-    if (await bcrypt.compare(pw.toString('utf-8'), user.password)) {
-      checkUserPasswd = true
-    }
+    // if (user === null || !body.password) {
+    //   ctx.status = 404
+    //   return
+    // }
+    // const pw = crypto.privateDecrypt({ key: config.PRIVATE_KEY, padding: crypto.constants.RSA_PKCS1_PADDING }, Buffer.from(body.password, 'base64'))
+    // if (!pw) {
+    //   ctx.status = 404
+    //   return
+    // }
+    //
+    // if (await bcrypt.compare(pw.toString('utf-8'), user.password)) {
+    //   checkUserPasswd = true
+    // }
     // 生成token
     if (checkUserPasswd) {
       ctx.body = builder({

@@ -12,7 +12,8 @@ import config from './config/index'
 import errorHandle from './common/ErrorHandle'
 import log4js from '@/config/Log4j'
 import monitorLogger from '@/common/Logger'
-import AuthCheck, { unless } from '@/common/AuthCheck'
+import authCheck, { unless } from '@/common/AuthCheck'
+import recordsHandle from '@/common/RecordsHandle'
 
 const app = new Koa()
 
@@ -43,8 +44,9 @@ const middleware = compose([
   cors(),
   jsonutil({ pretty: false, param: 'pretty' }),
   helmet(),
-  AuthCheck,
+  authCheck,
   // auth,
+  recordsHandle,
   errorHandle,
   config.isDevMode
     ? log4js.koaLogger(log4js.getLogger('http'), {
