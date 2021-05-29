@@ -13,8 +13,7 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/re
   && cp -r -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
   && apk add --no-cache bash git \
   && git clone -b $GIT_BRANCH --depth=1 https://github.com/clam314/blog-admin-api.git /app \
-  && cd /app \
-  && rm -rf .git
+  && cd /app
 
 COPY .env /app
 
