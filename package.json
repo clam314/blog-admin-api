@@ -24,6 +24,7 @@
     "del": "^6.0.0",
     "esdk-obs-nodejs": "^3.20.8",
     "form-data": "^3.0.0",
+    "git-revision-webpack-plugin": "^5.0.0",
     "js-base64": "^3.6.0",
     "js-md5": "^0.7.3",
     "jsonwebtoken": "^8.5.1",

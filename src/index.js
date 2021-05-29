@@ -67,4 +67,7 @@ app.use(router())
 app.listen(config.port, () => {
   const logger = log4js.getLogger('out')
   logger.info('app is runing at ' + config.baseUrl)
+  logger.info('VERSION:' + process.env.VERSION)
+  logger.info('BRANCH:' + process.env.BRANCH)
+  logger.info('COMMIT_HASH:' + process.env.COMMIT)
 })

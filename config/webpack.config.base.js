@@ -5,6 +5,8 @@ const webpack = require('webpack')
 const nodeExternals = require('webpack-node-externals')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
+const { GitRevisionPlugin } = require('git-revision-webpack-plugin')
+const gitRevision = new GitRevisionPlugin()
 const env = process.env.NODE_ENV
 
 const webpackconfig = {
@@ -36,6 +38,13 @@ const webpackconfig = {
     new webpack.EnvironmentPlugin(['NODE_ENV']),
     new Dotenv({
       path: env !== 'development' ? './.env' : './.env.development'
+    }),
+    new webpack.DefinePlugin({
+      'process.env':{
+        VERSION: JSON.stringify(gitRevision.version()),
+        COMMIT: JSON.stringify(gitRevision.commithash()),
+        BRANCH: JSON.stringify(gitRevision.branch())
+      }
     })
   ],
   node: {
