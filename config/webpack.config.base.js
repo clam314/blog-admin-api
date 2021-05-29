@@ -6,8 +6,16 @@ const nodeExternals = require('webpack-node-externals')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
 const { GitRevisionPlugin } = require('git-revision-webpack-plugin')
-const gitRevision = new GitRevisionPlugin()
+const GitRevision = new GitRevisionPlugin()
+const buildDate = JSON.stringify(new Date().toLocaleString())
 const env = process.env.NODE_ENV
+
+function getGitHash () {
+  try {
+    return GitRevision.version()
+  } catch (e) {}
+  return 'unknown'
+}
 
 const webpackconfig = {
   target: 'node',
@@ -40,10 +48,10 @@ const webpackconfig = {
       path: env !== 'development' ? './.env' : './.env.development'
     }),
     new webpack.DefinePlugin({
-      'process.env':{
-        VERSION: JSON.stringify(gitRevision.version()),
-        COMMIT: JSON.stringify(gitRevision.commithash()),
-        BRANCH: JSON.stringify(gitRevision.branch())
+      process: {
+        APP_VERSION: `"${require('../package.json').version}"`,
+        GIT_HASH: JSON.stringify(getGitHash()),
+        BUILD_DATE: buildDate
       }
     })
   ],
