@@ -41,7 +41,9 @@ const middleware = compose([
     }
   }),
   statics(path.join(__dirname, '../public')),
-  cors(),
+  cors({
+
+  }),
   jsonutil({ pretty: false, param: 'pretty' }),
   helmet(),
   authCheck,
@@ -63,6 +65,7 @@ if (!config.isDevMode) {
 
 app.use(middleware)
 app.use(router())
+app.use(router().allowMethods())
 
 app.listen(config.port, () => {
   const logger = log4js.getLogger('out')
