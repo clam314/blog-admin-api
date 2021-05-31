@@ -99,7 +99,7 @@ class ArticleController {
       const readerStream = createReadStream(file.path)
       const upStream = createWriteStream(destPath)
       readerStream.pipe(upStream)
-      const url = `${config.baseUrl}/${folder}/${picName}.${ext}`
+      const url = `${config.baseUrl}/${config.serverPath}/${folder}/${picName}.${ext}`
       ctx.body = builder({ url }, requestId, '上传成功')
     } catch (e) {
       console.error(e)
@@ -470,7 +470,7 @@ class ArticleController {
       const readerStream = createReadStream(file.path)
       const upStream = createWriteStream(destPath)
       readerStream.pipe(upStream)
-      const url = `${config.baseUrl}/${folder}/${picName}.${ext}`
+      const url = `${config.baseUrl}/${config.serverPath}/${folder}/${picName}.${ext}`
       const result = await Articles.updateOne({ _id: tid }, { des_image: url })
       if (result.ok) {
         ctx.body = builder({ url }, requestId, '上传成功')

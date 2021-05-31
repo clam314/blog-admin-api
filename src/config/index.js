@@ -14,19 +14,21 @@ const getUrlPrefixStr = (str) => {
   return baseUrlPrefix + str
 }
 
+const isDevMode = process.env.NODE_ENV !== 'production'
+
 const PRIVATE_KEY = process.env.PRIVATE_KEY
 
 const JWT_SECRET = process.env.JWT_SECRET
 
 const port = process.env.PORT
 
-const baseUrl = `${process.env.BASE_URL}:${port}`
+const baseUrl = process.env.BASE_URL
 
-const uploadPath = process.env.NODE_ENV === 'production' ? '/app/public' : path.join(path.resolve(__dirname), '../../public')
+const serverPath = 'static'
+
+const uploadPath = !isDevMode ? '/app/public' : path.join(path.resolve(__dirname), '../../public')
 
 const publicPath = ['/public', '/login', '/blog']
-
-const isDevMode = process.env.NODE_ENV !== 'production'
 
 export default {
   DB_NAME,
@@ -37,6 +39,7 @@ export default {
   baseUrlPrefix,
   getUrlPrefixStr,
   baseUrl,
+  serverPath,
   uploadPath,
   publicPath,
   isDevMode,

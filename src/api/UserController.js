@@ -139,7 +139,7 @@ class UserController {
 
     try {
       const ext = file.name.split('.').pop().toLowerCase()
-      const folder = moment().format('YYYYMMDD')
+      const folder = 'avatar'
       const dir = `${config.uploadPath}/${folder}`
       // 判断路径是否存在，不存在则创建
       await fsp.mkdir(dir, { recursive: true })
@@ -148,7 +148,7 @@ class UserController {
       const readerStream = createReadStream(file.path)
       const upStream = createWriteStream(destPath)
       readerStream.pipe(upStream)
-      const url = `${config.baseUrl}/${folder}/${picName}.${ext}`
+      const url = `${config.baseUrl}/${config.serverPath}/${folder}/${picName}.${ext}`
       user.avatar = url
       const updateResult = await user.save()
       console.log('updateResult:', updateResult)
