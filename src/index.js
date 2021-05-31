@@ -65,7 +65,6 @@ if (!config.isDevMode) {
 
 app.use(middleware)
 app.use(router())
-app.use(router().allowMethods())
 
 app.listen(config.port, () => {
   const logger = log4js.getLogger('out')
