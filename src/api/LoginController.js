@@ -31,21 +31,27 @@ class LoginController {
     // 验证用户账号密码是否正确
     let checkUserPasswd = true
     const user = await User.findOne({ username: body.username })
-    // if (user === null || !body.password) {
-    //   ctx.status = 404
-    //   return
-    // }
-    // const pw = crypto.privateDecrypt({ key: config.PRIVATE_KEY, padding: crypto.constants.RSA_PKCS1_PADDING }, Buffer.from(body.password, 'base64'))
-    // if (!pw) {
-    //   ctx.status = 404
-    //   return
-    // }
-    //
-    // if (await bcrypt.compare(pw.toString('utf-8'), user.password)) {
-    //   checkUserPasswd = true
-    // }
+    if (user === null || !body.password) {
+      ctx.status = 404
+      return
+    }
+    const pw = crypto.privateDecrypt({ key: config.PRIVATE_KEY, padding: crypto.constants.RSA_PKCS1_PADDING }, Buffer.from(body.password, 'base64'))
+    if (!pw) {
+      ctx.status = 404
+      return
+    }
+
+    if (await bcrypt.compare(pw.toString('utf-8'), user.password)) {
+      checkUserPasswd = true
+    }
     // 生成token
     if (checkUserPasswd) {
+      // 更新用户登录的ip和时间
+      const clientIp = body['x-real-ip'] || 'Not Find'
+      const loginTime = new Date().getTime()
+      user.lastLoginIp = clientIp
+      user.lastLoginTime = loginTime
+      await user.save()
       ctx.body = builder({
         token: generateToken({ _id: user._id }, '7d')
       }, requestId)
