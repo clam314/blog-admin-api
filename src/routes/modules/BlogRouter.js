@@ -30,6 +30,9 @@ router.post('/links', LinkController.getBlogLinks)
 
 // 随机图片
 router.get('/random', FileController.randomImg)
+
+// 随机图片文件
+router.get('/random-file', FileController.randomImgFile)
 /**
  *  TODO
  *  1、评论接口
